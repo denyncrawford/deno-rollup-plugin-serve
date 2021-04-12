@@ -20,14 +20,14 @@
 
 This modules made for [deno-rollup](https://github.com/cmorten/deno-rollup) ***Next-generation ES module bundler for Deno ported from Rollup.***
 
-**deno-rollup-plugin-serve** is a Deno rebuilt/port of [rollup-plugin-serve](https://www.npmjs.com/package/rollup-plugin-serve). It creates a development server for testing your front-end apps.
+**deno-rollup-plugin-serve** is a Deno rebuilt/port from [rollup-plugin-serve](https://www.npmjs.com/package/rollup-plugin-serve). It creates a development server for testing your front-end apps.
 
 ## Import
 ```typescript
 # Deno Rollup v2.36.1+0.1.0+
-import serve from 'deno.land/x/deno-rollup-plugin-serve@1.1.0+0.1.0/mod.ts'
+import serve from 'https://deno.land/x/drollup_plugin_serve'
 // or
-import serve from 'x.nest.land/deno-rollup-plugin-serve@1.1.0+0.1.0/mod.ts'
+import serve from 'http://x.nest.land/deno-rollup-plugin-serve@1.1.0+0.1.0/mod.ts'
 ```
 
 ## Usage

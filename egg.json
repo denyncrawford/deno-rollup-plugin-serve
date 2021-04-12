@@ -1,10 +1,10 @@
 {
   "$schema": "https://x.nest.land/eggs@0.3.4/src/schema.json",
   "name": "deno-rollup-plugin-serve",
-  "entry": "mod.ts",
+  "entry": "./mod.ts",
   "description": "Deno rebuilt/port from rollup-plugin-serve",
   "homepage": "https://github.com/denyncrawford/deno-rollup-plugin-serve",
-  "version": "1.1.0+0.1.0",
+  "version": "2.0.0",
   "releaseType": "major",
   "files": [
     "mod.ts",
@@ -18,5 +18,6 @@
   "checkFormat": false,
   "checkTests": false,
   "checkInstallation": false,
-  "check": false
+  "check": false,
+  "unlisted": false
 }

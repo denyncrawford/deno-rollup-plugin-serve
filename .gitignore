@@ -1,0 +1,14 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Unwanted
+.idea
+.DS_Store
+.vscode
+
+# Build files
+dist/*
+!dist/favicon.ico
+test/dest.js

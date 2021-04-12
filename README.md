@@ -16,6 +16,8 @@
   <img src="https://img.shields.io/github/release/denyncrawford/deno-rollup-plugin-serve.svg" alt="Latest Version" />
 </a>
 
+[![nest badge](https://nest.land/badge.svg)](https://nest.land/package/your-module)
+
 ## Overview
 
 This modules made for [deno-rollup](https://github.com/cmorten/deno-rollup) ***Next-generation ES module bundler for Deno ported from Rollup.***
@@ -24,10 +26,10 @@ This modules made for [deno-rollup](https://github.com/cmorten/deno-rollup) ***N
 
 ## Import
 ```typescript
-# Deno Rollup v2.36.1+0.1.0+
-import serve from 'https://deno.land/x/drollup_plugin_serve'
+# Deno Rollup v2.36.1+0.1.1+
+import serve from 'https://deno.land/x/drollup_plugin_serve@@1.1.0+0.1.1/mod.ts'
 // or
-import serve from 'http://x.nest.land/deno-rollup-plugin-serve@1.1.0+0.1.0/mod.ts'
+import serve from 'http://x.nest.land/deno-rollup-plugin-serve@3.0.0/mod.ts'
 ```
 
 ## Usage

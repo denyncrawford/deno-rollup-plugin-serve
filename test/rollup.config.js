@@ -1,6 +1,6 @@
-import serve from '../src/index.ts'
+import serve from '../mod.ts'
 
-export default {
+export default { 
   input: './entry.js',
   plugins: [
     serve({

@@ -26,8 +26,13 @@ This modules made for [deno-rollup](https://github.com/cmorten/deno-rollup) ***N
 
 ## Import
 ```typescript
+<<<<<<< HEAD
 # Deno Rollup v2.36.1+0.1.2+
 import serve from 'https://deno.land/x/drollup_plugin_serve@@1.1.0+0.1.2/mod.ts'
+=======
+# Deno Rollup v2.36.1+0.1.1+
+import serve from 'https://deno.land/x/drollup_plugin_serve@1.1.0+0.1.1/mod.ts'
+>>>>>>> 1eb84218a8bb2c153c4269075a0fb7b4d76ddf63
 // or
 import serve from 'http://x.nest.land/deno-rollup-plugin-serve@4.0.0/mod.ts'
 ```

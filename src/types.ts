@@ -12,11 +12,11 @@ export type ServeOptions = {
   defaultType: string,
   verbose?: boolean,
   open?: boolean,
-  historyApiFallback?: string
+  historyApiFallback?: (string | boolean)
 }
 
 export type ReadReturn = {
-  err: unknown | null,
+  err: ErrorConstructor | null,
   filePath: string,
   content: Uint8Array | null
 }

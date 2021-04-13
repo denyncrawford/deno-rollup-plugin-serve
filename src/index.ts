@@ -58,7 +58,7 @@ class BuildServer {
     const urlPath = normalize(unsafePath)
     const { content, err, filePath } = await readFileFromContentBase(this.options.contentBase, urlPath)
     if (!err && content) return req.respond(this.found(response, filePath, content))
-    if (err) {
+    if (err && err.name !== 'NotFound') {
       response.status = 500;
       response.body = '500 Internal Server Error' +
         '\n\n' + filePath +
@@ -66,7 +66,7 @@ class BuildServer {
         '\n\n(rollup-plugin-serve)';
       return req.respond(response)
     }
-    if (this.options.historyApiFallback) { 
+    if (this.options.historyApiFallback) {         
       const fallbackPath = typeof this.options.historyApiFallback === 'string' ? this.options.historyApiFallback : '/index.html'
       const { content: bContent, err: bError, filePath: bFilepath } = await readFileFromContentBase(this.options.contentBase, fallbackPath)
         if (bError) {
@@ -159,9 +159,20 @@ const readFileFromContentBase = async (contentBase:Array<string>, urlPath: strin
   let filePath = resolve(contentBase[0] || '.', '.' + urlPath)
 
   // Load index.html in directories
+
   if (urlPath.endsWith('/')) {
     filePath = resolve(filePath, 'index.html')
+  } 
+  
+  if (!urlPath.endsWith('/') && !urlPath.includes('.')) {
+    try {
+      const fileInfo = await Deno.stat(filePath)
+      filePath = fileInfo.isFile ? filePath : resolve(filePath, 'index.html')
+    } catch (err) {
+      filePath
+    }
   }
+
   // Try Read
   try {
     const content = await readFile(filePath)

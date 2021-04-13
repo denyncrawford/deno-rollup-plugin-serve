@@ -2,6 +2,14 @@
 
 All notable changes to `deno-rollup-plugin-serve` including the previos at the node version will be documented in this file.
 
+## [1.1.0+0.1.2]
+### Added
+- Routes without ***/*** checks if they're folders to resolve index.html
+
+### Fixed
+- Deno error handling.
+- historyApiFallback now works and can handle boolean or strings
+
 ## [1.1.0+0.1.0]
 ### Ported
 - Ported all functionalities from Node to Deno.

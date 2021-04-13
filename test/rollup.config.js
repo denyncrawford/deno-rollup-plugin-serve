@@ -7,7 +7,7 @@ export default {
       open: true,
       port: 3000,
       openPage: '/frames.html',
-      historyApiFallback: '/fallback.html',
+      historyApiFallback: true,
       contentBase: ['.', 'base1', 'base2'],
       onListening({protocol, host, port}) {
         // by using a bound function, we can access options as `this`

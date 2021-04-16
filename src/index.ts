@@ -1,5 +1,5 @@
 const { readFile } = Deno
-import { ServeOptions, ReadReturn } from './types.ts'
+import { ServeOptions, ReadReturn, Inner } from './types.ts'
 import { mime } from 'https://deno.land/x/mimetypes@v1.0.0/src/mime.ts';
 import { open } from "https://deno.land/x/opener/mod.ts";
 import { 
@@ -20,7 +20,7 @@ import type {
 
 const decoder = new TextDecoder()
 
-class BuildServer {
+class BuildServer <Options extends Record<string, ServeOptions<unknown>>> {
   options: ServeOptions = {
     contentBase: [''],
     port: 10001,
@@ -32,20 +32,22 @@ class BuildServer {
     verbose: true,
     onListening () {}
   };
+
   server: Server;
   #p?: Promise<void>;
   first = true
-  constructor (initOptions: ServeOptions | string | Array<string>) {
+  constructor (initOptions: string | Array<string> | { [K in keyof Options]?: Inner<Options[K]> } = [''] ) {
     if (Array.isArray(initOptions) || typeof initOptions === 'string') {
       this.options.contentBase = typeof initOptions === 'string' ? [initOptions] : initOptions;
     }
     Object.assign(this.options, initOptions)
+    this.options.contentBase = typeof this.options.contentBase === 'string' ? [this.options.contentBase] : this.options.contentBase;
     if (this.options?.mimeTypes) {
       mime.define(this.options?.mimeTypes, true);
     }
-    this.server = this.options.https
-    ? serveTLS(this.options.https)
-    : serve({port: this.options.port, hostname: this.options.host})
+    this.server = !this.options.https
+    ? serve({port: this.options.port || 10001, hostname: this.options.host})
+    : serveTLS(this.options.https)
   }
 
   async requestHandler(req: ServerRequest) {
@@ -56,8 +58,8 @@ class BuildServer {
     const unsafePath = decodeURI(req.url.split('?')[0]);
     // Don't allow path traversal
     const urlPath = normalize(unsafePath)
-    const { content, err, filePath } = await readFileFromContentBase(this.options.contentBase, urlPath)
-    if (!err && content) return req.respond(this.found(response, filePath, content))
+    const { content, err, filePath, size } = await readFileFromContentBase(this.options.contentBase, urlPath)
+    if (!err && content) return req.respond(this.found(response, filePath, content, size ? size : ''))
     if (err && err.name !== 'NotFound') {
       response.status = 500;
       response.body = '500 Internal Server Error' +
@@ -68,11 +70,11 @@ class BuildServer {
     }
     if (this.options.historyApiFallback) {         
       const fallbackPath = typeof this.options.historyApiFallback === 'string' ? this.options.historyApiFallback : '/index.html'
-      const { content: bContent, err: bError, filePath: bFilepath } = await readFileFromContentBase(this.options.contentBase, fallbackPath)
+      const { content: bContent, err: bError, filePath: bFilepath, size: bSize } = await readFileFromContentBase(this.options.contentBase, fallbackPath)
         if (bError) {
           return req.respond(this.notFound(response, filePath))
         } else {
-          return req.respond(this.found(response, bFilepath, bContent || new Uint8Array(0)))
+          return req.respond(this.found(response, bFilepath, bContent || new Uint8Array(0), bSize ? bSize : ''))
         }
     } else {
       return req.respond(this.notFound(response, filePath))
@@ -88,20 +90,7 @@ class BuildServer {
       this.requestHandler(req);
     }
   }
-  closeServerOnTermination () {
-    const terminationSignals = ['SIGINT', 'SIGTERM', 'SIGQUIT', 'SIGHUP']
-    terminationSignals.forEach((signal: string) => {
-      (async () => {
-        /* @ts-ignore */
-        for await (const _ of Deno.signal(Deno.Signal[signal])) {
-          if (this.server) {
-            this.server.close()
-            Deno.exit()
-          }
-        }
-      })()
-    })
-  }
+
   notFound(response: Response, filePath: string): Response {
     response.status = 404;
     response.body = '404 Not Found' +
@@ -110,10 +99,13 @@ class BuildServer {
     return response;
   }
   
-  found(response: Response, filePath: string, content: Uint8Array): Response {
+  found(response: Response, filePath: string, content: Uint8Array, size: string): Response {
     response.status = 200;
-    if (response.headers) response.headers.append('Content-Type', mime.getType(filePath) || this.options.defaultType);
-    response.body = decoder.decode(content);
+    if (response.headers) {
+      response.headers.append("content-length", size);
+      response.headers.append('Content-Type', mime.getType(filePath) || this.options.defaultType)
+    }
+    response.body = content;
     return response;
   }
   
@@ -157,7 +149,6 @@ class BuildServer {
 
 const readFileFromContentBase = async (contentBase:Array<string>, urlPath: string): Promise<ReadReturn> => {
   let filePath = resolve(contentBase[0] || '.', '.' + urlPath)
-
   // Load index.html in directories
 
   if (urlPath.endsWith('/')) {
@@ -175,10 +166,14 @@ const readFileFromContentBase = async (contentBase:Array<string>, urlPath: strin
 
   // Try Read
   try {
-    const content = await readFile(filePath)
+    const [content, fileInfo] = await Promise.all([
+      readFile(filePath),
+      Deno.stat(filePath),
+    ]);
     return {
       err: null,
       filePath,
+      size: fileInfo.size.toString(),
       content      
     }
   } catch (err) {
@@ -187,12 +182,15 @@ const readFileFromContentBase = async (contentBase:Array<string>, urlPath: strin
     else return {
       err,
       filePath,
+      size: null,
       content: null
     }
   }
 }
 
-export default (initOptions: ServeOptions | string | Array<string> ): Plugin => {
+type Options = Record<string, ServeOptions<unknown>>
+
+export default (initOptions: string | Array<string> | { [K in keyof Options]?: Inner<Options[K]> } = ['']): Plugin => {
   const server = new BuildServer(initOptions);
   const plugin = server.rollup();
   return plugin;

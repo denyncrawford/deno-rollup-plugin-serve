@@ -2,6 +2,17 @@
 
 All notable changes to `deno-rollup-plugin-serve` including the previos at the node version will be documented in this file.
 
+## [1.1.0+0.1.3]
+
+### Fixed
+- Sending binary data as files correctly.
+- Making all options optional
+- Fixed basepath not found issue
+
+### Added
+
+- Types and Interfaces
+
 ## [1.1.0+0.1.2]
 ### Added
 - Routes without ***/*** checks if they're folders to resolve index.html
